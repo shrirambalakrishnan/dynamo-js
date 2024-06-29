@@ -93,7 +93,7 @@ describe("ConsistentHashing", function() {
 
   describe("#addServer", function() {
 
-    it.only("adds new server into the ring", function() {
+    it("adds new server into the ring", function() {
       let servers = [
         { id: 200, name: "server200", ip: "server200-ip"},
         { id: 100, name: "server100", ip: "server100-ip"},
@@ -108,6 +108,39 @@ describe("ConsistentHashing", function() {
       
       let updatedRing = consistentHashing.getRing()
       assert.equal(updatedRing.length, 4)
+    })
+    
+  })
+
+  describe("#removeServer", function() {
+    let servers, consistentHashing
+
+    beforeEach( function() {
+      servers = [
+        { id: 200, name: "server200", ip: "server200-ip"},
+        { id: 100, name: "server100", ip: "server100-ip"},
+        { id: 300, name: "server300", ip: "server300-ip"},
+      ]
+
+      consistentHashing = new ConsistentHashing(servers)
+      consistentHashing.constructRing()
+    })
+
+    it("returns null if server to remove is not available in the ring", function() {
+      let serverToDelete =  { id: 1200, name: "server1200", ip: "server1200-ip"}
+      let removeServerResponse = consistentHashing.removeServer(serverToDelete)
+      assert.equal(removeServerResponse, null)
+      
+      let updatedRing = consistentHashing.getRing()
+      assert.equal(updatedRing.length, 3)
+    })
+    
+    it("removes server from the ring", function() {
+      let serverToDelete = servers[0]
+      consistentHashing.removeServer(serverToDelete)
+      
+      let updatedRing = consistentHashing.getRing()
+      assert.equal(updatedRing.length, 2)
     })
     
   })

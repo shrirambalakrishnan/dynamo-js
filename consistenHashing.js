@@ -100,14 +100,24 @@ class ConsistentHashing {
     
     console.log("ConsistentHashing.addServer updated ring = ", JSON.stringify(this.ring))
   }
+
+  removeServer(server) {
+    const serverHashValue = this.generateHash(server.id)
+    console.debug("ConsistentHashing.addServer serverHashValue = ", serverHashValue)
+
+    let indexOfServerToRemove = this.ring.findIndex(server => server == serverHashValue)
+
+    if(indexOfServerToRemove < 0) {
+      return
+    }
+    
+    this.ring.splice(indexOfServerToRemove, 1)
+    delete this.ring[serverHashValue]
+    
+    console.log("ConsistentHashing.removeServer updated ring = ", JSON.stringify(this.ring))
+  }
 }
 
 module.exports = {
   ConsistentHashing
 }
-
-// TODO
-// 1. addServer
-// 2. removeServer
-// 3. refactore constructRing using addServer
-// 4. getServer and binarySerach mention in blog sources
