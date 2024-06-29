@@ -23,6 +23,7 @@ class ConsistentHashing {
     
     this.servers = servers
     this.ring = []
+    this.hashValueToServerMapping = {}
     
   }
 
@@ -35,11 +36,21 @@ class ConsistentHashing {
   }
 
   constructRing() {
-    this.servers.forEach( (server, index) => {
-      this.ring[index] = this.generateHash(server.id)
+    this.servers.forEach( (server) => {
+      const serverHashValue = this.generateHash(server.id)
+      this.ring.push( serverHashValue )
+
+      this.hashValueToServerMapping["serverHashValue"] = server.id
     })
+
+    console.debug("ConsistentHashing.constructRing.1 this.ring = ", JSON.stringify(this.ring))
     
-    console.log("ConsistentHashing.constructRing this.ring = ", JSON.stringify(this.ring))
+    // Each server has to be placed in IT'S OWN position in the ring
+    // Only then the clockwise navigation to find the correct server would work
+    // Hence, afer hash generation for each server, sort it to create a ring
+    this.ring.sort()
+
+    console.debug("ConsistentHashing.constructRing.2 this.ring = ", JSON.stringify(this.ring))
   }
   
 }
