@@ -77,8 +77,37 @@ class ConsistentHashing {
 
     return selectedServer
   }
+
+  addServer(server) {
+    const newServerHashValue = this.generateHash(server.id)
+    console.log("ConsistentHashing.addServer newServerHashValue = ", newServerHashValue)
+    
+    let indexToInsertNewServer
+    for(let i=0;i<this.ring.length && !indexToInsertNewServer;i++) {
+      if( this.ring[i] > newServerHashValue ) {
+        indexToInsertNewServer = i
+      }
+    }
+
+    if(indexToInsertNewServer < 0) {
+      indexToInsertNewServer = 0
+    } 
+    
+    console.log("ConsistentHashing.addServer indexToInsertNewServer = ", indexToInsertNewServer)
+    this.ring.splice(indexToInsertNewServer, 0, newServerHashValue)
+
+    this.hashValueToServerMapping[ newServerHashValue ] = server.id
+    
+    console.log("ConsistentHashing.addServer updated ring = ", JSON.stringify(this.ring))
+  }
 }
 
 module.exports = {
   ConsistentHashing
 }
+
+// TODO
+// 1. addServer
+// 2. removeServer
+// 3. refactore constructRing using addServer
+// 4. getServer and binarySerach mention in blog sources

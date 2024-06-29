@@ -90,4 +90,25 @@ describe("ConsistentHashing", function() {
     
     
   })
+
+  describe("#addServer", function() {
+
+    it.only("adds new server into the ring", function() {
+      let servers = [
+        { id: 200, name: "server200", ip: "server200-ip"},
+        { id: 100, name: "server100", ip: "server100-ip"},
+        { id: 300, name: "server300", ip: "server300-ip"},
+      ]
+
+      let consistentHashing = new ConsistentHashing(servers)
+      consistentHashing.constructRing()
+
+      let newServer = {id: 50, name: "server0", ip: "server0-ip"}
+      consistentHashing.addServer(newServer)
+      
+      let updatedRing = consistentHashing.getRing()
+      assert.equal(updatedRing.length, 4)
+    })
+    
+  })
 })
