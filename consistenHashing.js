@@ -40,19 +40,43 @@ class ConsistentHashing {
       const serverHashValue = this.generateHash(server.id)
       this.ring.push( serverHashValue )
 
-      this.hashValueToServerMapping["serverHashValue"] = server.id
+      this.hashValueToServerMapping[serverHashValue] = server.id
     })
-
-    console.debug("ConsistentHashing.constructRing.1 this.ring = ", JSON.stringify(this.ring))
     
     // Each server has to be placed in IT'S OWN position in the ring
     // Only then the clockwise navigation to find the correct server would work
     // Hence, afer hash generation for each server, sort it to create a ring
     this.ring.sort()
 
-    console.debug("ConsistentHashing.constructRing.2 this.ring = ", JSON.stringify(this.ring))
+    console.info("ConsistentHashing.constructRing.2 this.ring = ", JSON.stringify(this.ring))
   }
-  
+
+  getServer(key) {
+    console.debug("ConsistentHashing.getServer.0 key = ", key)
+
+    if(this.ring.length == 0) {
+      return
+    }
+
+    const keyHashValue = this.generateHash( key )
+    let selectedServerHashValue = null,
+        selectedServer = null;
+    
+    for(let i = 1; i < this.ring.length && selectedServerHashValue == null ; i++) {
+      if( keyHashValue < this.ring[i] ) {
+        selectedServerHashValue = this.ring[i] 
+      }
+    }
+
+    if( !selectedServerHashValue ) {
+      selectedServerHashValue = this.ring[0]
+    }
+
+    selectedServer = this.hashValueToServerMapping[ selectedServerHashValue ]
+    console.info("ConsistentHashing.getServer.0 selectedServerHashValue, selectedServer = ", selectedServerHashValue, selectedServer)
+
+    return selectedServer
+  }
 }
 
 module.exports = {

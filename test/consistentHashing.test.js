@@ -38,4 +38,56 @@ describe("ConsistentHashing", function() {
       )
     })
   })
+
+  describe("#getServer", function() {
+
+    describe("when there are no servers in ring", function() {
+      it("returns null when there are no servers", function() {
+        const servers = []
+        const consistentHashing = new ConsistentHashing(servers)
+        consistentHashing.constructRing()
+  
+        assert.deepEqual(
+          consistentHashing.getServer("450"),
+          null
+        )
+      })
+    })
+    
+    describe("when there are servers available in the ring", function() {
+      let servers, consistentHashing
+      
+      this.beforeEach( function() {
+        servers = [
+          { id: 200, name: "server200", ip: "server200-ip"},
+          { id: 100, name: "server100", ip: "server100-ip"},
+          { id: 300, name: "server300", ip: "server300-ip"},
+        ]
+
+        consistentHashing = new ConsistentHashing(servers)
+        consistentHashing.constructRing()
+      })
+      
+      it("returns a valid server - case 1", function() {
+        const selectedServerIndex = consistentHashing.getServer(50)
+        const isAnyOneServerSelected = servers.map( server => server.id ).includes( selectedServerIndex )
+        assert( isAnyOneServerSelected, true )
+      })
+  
+      it("returns a valid server - case 2", function() {
+        const selectedServerIndex = consistentHashing.getServer(250)
+        const isAnyOneServerSelected = servers.map( server => server.id ).includes( selectedServerIndex )
+        assert( isAnyOneServerSelected, true )
+      })
+  
+      it("returns a valid server - case 2", function() {
+        const selectedServerIndex = consistentHashing.getServer(4000)
+        const isAnyOneServerSelected = servers.map( server => server.id ).includes( selectedServerIndex )
+        assert( isAnyOneServerSelected, true )
+      })
+      
+    })
+    
+    
+  })
 })
