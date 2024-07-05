@@ -144,4 +144,47 @@ describe("ConsistentHashing", function() {
     })
     
   })
+
+  describe("#getNextServerInRing", function() {
+    describe("when there are servers available in the ring", function() {
+      let servers, consistentHashing
+      
+      this.beforeEach( function() {
+        servers = [
+          { id: 200, name: "server200", ip: "server200-ip"},
+          { id: 100, name: "server100", ip: "server100-ip"},
+          { id: 300, name: "server300", ip: "server300-ip"},
+        ]
+
+        consistentHashing = new ConsistentHashing(servers)
+        consistentHashing.constructRing()
+      })
+
+      it("returns the next server in the ring", function() {
+
+        let serverIdSelected = 100
+        let hashserverIdSelected = consistentHashing.generateHash(serverIdSelected)
+        let serverIndexinRing = consistentHashing.ring.findIndex( serverInRing => serverInRing == hashserverIdSelected)
+
+        assert.equal(
+          consistentHashing.getNextServerInRing( serverIndexinRing ),
+          200
+        )
+        
+      })
+
+      it("returns the first server in the ring if the selected server is the last one", function() {
+
+        let serverIdSelected = 300
+        let hashserverIdSelected = consistentHashing.generateHash(serverIdSelected)
+        let serverIndexinRing = consistentHashing.ring.findIndex( serverInRing => serverInRing == hashserverIdSelected)
+
+        assert.equal(
+          consistentHashing.getNextServerInRing( serverIndexinRing ),
+          100
+        )
+        
+      })
+    })
+  })
 })
