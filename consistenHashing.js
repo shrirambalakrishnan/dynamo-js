@@ -78,6 +78,14 @@ class ConsistentHashing {
     return selectedServer
   }
 
+  getNextServerInRing(serverIndex) {
+    const nextServerIndex = (serverIndex + 1) % this.ring.length
+    const nextServerHashValue = this.ring[nextServerIndex]
+    const nextServerId = this.hashValueToServerMapping[ nextServerHashValue ]
+
+    return nextServerId
+  }
+
   addServer(server) {
     const newServerHashValue = this.generateHash(server.id)
     console.log("ConsistentHashing.addServer newServerHashValue = ", newServerHashValue)
@@ -113,7 +121,7 @@ class ConsistentHashing {
     
     this.ring.splice(indexOfServerToRemove, 1)
     delete this.ring[serverHashValue]
-    
+
     console.log("ConsistentHashing.removeServer updated ring = ", JSON.stringify(this.ring))
   }
 }

@@ -1,5 +1,6 @@
 const { ConsistentHashing } = require("./consistenHashing");
 const { ServerNode } = require("./serverNode");
+const { QueryProcessor } = require("./queryProcessor")
 
 function initServers() {
   let serverNode1 = new ServerNode({ id: 1, name: "server1", ip: "server1-ip" })
@@ -33,9 +34,8 @@ function seedData() {
 function loadData(servers, consistenHashing, dataToStore) {
 
   dataToStore.forEach( data => {
-    const serverId = consistenHashing.getServer(data.key)
-    const server = servers.find( server => server.id == serverId )
-    server.put(data.key, data.value)
+    const queryProcessor = new QueryProcessor(consistenHashing, servers)
+    queryProcessor.put(data.key, data.value)
   })
   
 }
@@ -44,6 +44,7 @@ function printServersData(servers) {
   servers.forEach( server => {
     console.log("-----------------------------------")
     console.log("server = ", server.id)
+    console.log("data stored count = ", JSON.stringify(Object.keys(server.data).length))
     console.log("data stored = ", JSON.stringify(server.data))
   })
 }
