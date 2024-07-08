@@ -20,7 +20,7 @@ class QueryProcessor {
     const server = this.servers.find( server => server.id == serverId )
 
     this.vectorClock.increment(server.id)
-    server.put(key, {value, vectorClock: this.vectorClock.clock[server.id]})
+    server.put(key, {value, vectorClock: {[server.id] : this.vectorClock.clock[server.id]}})
 
     this.relicateWrites(serverId, key, value)
   }
@@ -31,7 +31,7 @@ class QueryProcessor {
 
     serversToReplicate.forEach( server => {
       this.vectorClock.increment(server.id)
-      server.put(key, {value, vectorClock: this.vectorClock.clock[server.id]}) 
+      server.put(key, {value, vectorClock: {[server.id] : this.vectorClock.clock[server.id]}}) 
     })
   }
 

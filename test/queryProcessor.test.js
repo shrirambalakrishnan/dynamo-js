@@ -57,7 +57,7 @@ describe("QueryProcessor", function() {
 
       expect( primaryServer.put.called ).to.be.true
       expect( putCallArgs[0] ).to.equal( "key1" )
-      expect( putCallArgs[1] ).to.deep.equal( {value: "value1", vectorClock: 10 } )
+      expect( putCallArgs[1] ).to.deep.equal( {value: "value1", vectorClock: {"server-1": 10} } )
     })
 
     it("writes data to the replication servers", function() {
@@ -67,7 +67,7 @@ describe("QueryProcessor", function() {
 
       expect( replicationServer.put.called ).to.be.true
       expect( putCallArgs[0] ).to.equal( "key1" )
-      expect( putCallArgs[1] ).to.deep.equal( {value: "value1", vectorClock: 25 } )
+      expect( putCallArgs[1] ).to.deep.equal( {value: "value1", vectorClock: {"server-3": 25} } )
     })
 
     it("does not write data to the non-replication servers", function() {
