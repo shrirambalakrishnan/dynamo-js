@@ -1,6 +1,7 @@
 const { ConsistentHashing } = require("./consistenHashing");
 const { ServerNode } = require("./serverNode");
 const { QueryProcessor } = require("./queryProcessor")
+const { VectorClock } = require("./vectorClock")
 
 function initServers() {
   let serverNode1 = new ServerNode({ id: 1, name: "server1", ip: "server1-ip" })
@@ -31,10 +32,10 @@ function seedData() {
   return dataToStore
 }
 
-function loadData(servers, consistenHashing, dataToStore) {
+function loadData(servers, consistenHashing, dataToStore, vectorClock) {
 
   dataToStore.forEach( data => {
-    const queryProcessor = new QueryProcessor(consistenHashing, servers)
+    const queryProcessor = new QueryProcessor(consistenHashing, servers, vectorClock)
     queryProcessor.put(data.key, data.value)
   })
   
@@ -56,7 +57,8 @@ function startSimulation() {
   let consistenHashing = new ConsistentHashing( servers )
   consistenHashing.constructRing()
 
-  loadData(servers, consistenHashing, dataToStore)
+  let vectorClock = new VectorClock()
+  loadData(servers, consistenHashing, dataToStore, vectorClock)
   printServersData(servers)
 }
 

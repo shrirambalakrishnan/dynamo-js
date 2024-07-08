@@ -5,9 +5,10 @@
 
 class QueryProcessor {
 
-  constructor(consistentHashing, servers) {
+  constructor(consistentHashing, servers, vectorClock) {
     this.consistentHashing = consistentHashing
     this.servers = servers
+    this.vectorClock = vectorClock
   }
 
   get(key) {
@@ -17,7 +18,9 @@ class QueryProcessor {
   put(key, value) {
     const serverId = this.consistentHashing.getServer( key )
     const server = this.servers.find( server => server.id == serverId )
-    server.put(key, value)
+
+    this.vectorClock.increment(server.id)
+    server.put(key, {value, vectorClock: {[server.id] : this.vectorClock.clock[server.id]}})
 
     this.relicateWrites(serverId, key, value)
   }
@@ -26,7 +29,10 @@ class QueryProcessor {
     const serverIdsToReplicate = this.fetchServerIdsForReplication(serverId)
     const serversToReplicate = this.servers.filter( server => serverIdsToReplicate.includes(server.id) )
 
-    serversToReplicate.forEach( server => server.put(key, value) )
+    serversToReplicate.forEach( server => {
+      this.vectorClock.increment(server.id)
+      server.put(key, {value, vectorClock: {[server.id] : this.vectorClock.clock[server.id]}}) 
+    })
   }
 
   fetchServerIdsForReplication(serverId) {
