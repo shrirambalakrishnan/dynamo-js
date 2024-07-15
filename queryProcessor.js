@@ -5,10 +5,9 @@
 
 class QueryProcessor {
 
-  constructor(consistentHashing, servers, vectorClock) {
+  constructor(consistentHashing, servers) {
     this.consistentHashing = consistentHashing
     this.servers = servers
-    this.vectorClock = vectorClock
   }
 
   get(key) {
@@ -19,19 +18,21 @@ class QueryProcessor {
     const serverId = this.consistentHashing.getServer( key )
     const server = this.servers.find( server => server.id == serverId )
 
-    this.vectorClock.increment(server.id)
-    server.put(key, {value, vectorClock: {[server.id] : this.vectorClock.clock[server.id]}})
+    // While writing to primary node, increment vector clock
+    server.clock.increment(server.id)
+    const valueWithContext = {value, vectorClock: JSON.parse(JSON.stringify(server.clock))}
+    server.put(key, valueWithContext)
 
-    this.relicateWrites(serverId, key, value)
+    this.relicateWrites(serverId, key, valueWithContext)
   }
 
-  relicateWrites(serverId, key, value) {
+  relicateWrites(serverId, key, valueWithContext) {
     const serverIdsToReplicate = this.fetchServerIdsForReplication(serverId)
     const serversToReplicate = this.servers.filter( server => serverIdsToReplicate.includes(server.id) )
 
     serversToReplicate.forEach( server => {
-      this.vectorClock.increment(server.id)
-      server.put(key, {value, vectorClock: {[server.id] : this.vectorClock.clock[server.id]}}) 
+      // While writing to replication nodes, retain the vector clock information passed by the primary node
+      server.put(key, valueWithContext) 
     })
   }
 

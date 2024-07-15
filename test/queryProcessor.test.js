@@ -12,13 +12,6 @@ class MockConsistentHashing {
   }
 }
 
-class MockServer {
-  constructor(id) {
-    this.id = id
-    this.put = sinon.stub()
-  }
-}
-
 class MockVectorClock {
   constructor() {
     this.clock = {
@@ -27,6 +20,14 @@ class MockVectorClock {
       "server-3": 25,
     }
     this.increment = sinon.stub()
+  }
+}
+
+class MockServer {
+  constructor(id) {
+    this.id = id
+    this.put = sinon.stub()
+    this.clock = new MockVectorClock()
   }
 }
 
@@ -40,8 +41,7 @@ describe("QueryProcessor", function() {
       new MockServer("server-2"),
       new MockServer("server-3")
     ]
-    mockVectorClock = new MockVectorClock()
-    queryProcessor = new QueryProcessor(consistentHashing, servers, mockVectorClock)
+    queryProcessor = new QueryProcessor(consistentHashing, servers)
   })
 
   this.afterEach( function() {
@@ -57,7 +57,16 @@ describe("QueryProcessor", function() {
 
       expect( primaryServer.put.called ).to.be.true
       expect( putCallArgs[0] ).to.equal( "key1" )
-      expect( putCallArgs[1] ).to.deep.equal( {value: "value1", vectorClock: {"server-1": 10} } )
+      expect( putCallArgs[1] ).to.deep.equal( {
+        value: "value1", 
+        vectorClock: {
+          clock: {
+            "server-1": 10,
+            "server-2": 50,
+            "server-3": 25,
+          }
+        } 
+      })
     })
 
     it("writes data to the replication servers", function() {
@@ -67,7 +76,16 @@ describe("QueryProcessor", function() {
 
       expect( replicationServer.put.called ).to.be.true
       expect( putCallArgs[0] ).to.equal( "key1" )
-      expect( putCallArgs[1] ).to.deep.equal( {value: "value1", vectorClock: {"server-3": 25} } )
+      expect( putCallArgs[1] ).to.deep.equal( {
+        value: "value1", 
+        vectorClock: {
+          clock: {
+            "server-1": 10,
+            "server-2": 50,
+            "server-3": 25,
+          }
+        }
+      })
     })
 
     it("does not write data to the non-replication servers", function() {
