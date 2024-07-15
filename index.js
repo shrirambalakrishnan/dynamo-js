@@ -46,6 +46,7 @@ function printServersData(servers) {
     console.log("-----------------------------------")
     console.log("server = ", server.id)
     console.log("data stored count = ", JSON.stringify(Object.keys(server.data).length))
+    console.log("server clock = ", server.clock)
     console.log("data stored = ", JSON.stringify(server.data))
   })
 }
@@ -57,8 +58,7 @@ function startSimulation() {
   let consistenHashing = new ConsistentHashing( servers )
   consistenHashing.constructRing()
 
-  let vectorClock = new VectorClock()
-  loadData(servers, consistenHashing, dataToStore, vectorClock)
+  loadData(servers, consistenHashing, dataToStore)
   printServersData(servers)
 }
 
