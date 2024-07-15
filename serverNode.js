@@ -1,3 +1,5 @@
+const { VectorClock } = require("./vectorClock")
+
 class ServerNode {
 
   constructor(serverDetails) {
@@ -5,6 +7,8 @@ class ServerNode {
     this.name = serverDetails.name
     this.ip = serverDetails.ip
     this.data = {}
+
+    this.clock = new VectorClock()
   }
 
   put(key, value) {
