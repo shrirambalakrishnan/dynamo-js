@@ -1,14 +1,8 @@
 # dynamo-js
 
-- Based on the paper "Dynamo: Amazon’s Highly Available Key-value Store"
-- Implementation using NodeJS
-- Components to build (high level)
+- Implemented a basic distributed storage in NodeJS based on the whitepaper "Dynamo: Amazon’s Highly Available Key-value Store"
+- Features
   - Consistent Hashing
-    - To determine the node to store the key
-  - Implement reads and writes
-    - Ensure consistency using quoram based protocol
-  - Implement data replication
-  - Handle node failures
-    - Transient failures
-    - Permanent failures
-  - Conflict resolution
+  - Data replication
+  - "writes" with version using Vector Clocks
+  - "reads" using quoram based protocol
