@@ -32,13 +32,10 @@ function seedData() {
   return dataToStore
 }
 
-function loadData(servers, consistenHashing, dataToStore, vectorClock) {
-
+function loadData(queryProcessor, dataToStore) {
   dataToStore.forEach( data => {
-    const queryProcessor = new QueryProcessor(consistenHashing, servers, vectorClock)
     queryProcessor.put(data.key, data.value)
   })
-  
 }
 
 function printServersData(servers) {
@@ -51,6 +48,25 @@ function printServersData(servers) {
   })
 }
 
+function readData(queryProcessor) {
+  const keysToRead = [
+    "A001",
+    "A002",
+    "B003",
+    "C004",
+    "D005",
+    "0006",
+  ]
+
+  for(let i = 0; i < keysToRead.length; i++) {
+    const key = keysToRead[i]
+    console.log("-----------------------------------")
+    const getResponse = queryProcessor.get(key)
+    console.log("key = ", key)
+    console.log("value = ", getResponse)
+  }
+}
+
 function startSimulation() {
   let servers = initServers()
   let dataToStore = seedData()
@@ -58,8 +74,17 @@ function startSimulation() {
   let consistenHashing = new ConsistentHashing( servers )
   consistenHashing.constructRing()
 
-  loadData(servers, consistenHashing, dataToStore)
+  const queryProcessor = new QueryProcessor(consistenHashing, servers)
+
+  // WRITE data
+  console.log("=== WRITING DATA ===")
+  loadData(queryProcessor, dataToStore)
+
   printServersData(servers)
+
+  // READ data
+  console.log("=== READING DATA ===")
+  readData(queryProcessor)
 }
 
 function main() {
